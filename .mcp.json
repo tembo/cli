@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "tembo": {
+      "type": "stdio",
+      "command": "/nix/store/fm3hjl9r1kdfw6mpcnhliighg9mla46i-tembo-cli-1.0.0/bin/tembo mcp",
+      "args": [],
+      "env": {}
+    }
+  }
+}
