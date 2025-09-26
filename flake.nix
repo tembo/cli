@@ -15,7 +15,7 @@
       pkgs = nixpkgs.legacyPackages.${system};
     in {
       packages.default = pkgs.buildNpmPackage {
-        pname = "tembo-cli";
+        pname = "tembo";
         version = "1.0.0";
         src = ./.;
         npmDepsHash = "sha256-lH2DjUMkCGI2SvMAWS0KNqOcgrw0otbs1sVu3LOLAhU=";
