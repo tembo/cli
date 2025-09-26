@@ -1,13 +1,20 @@
 import { Command } from "commander";
+// @ts-ignore
+import { sseToStdio } from "supergateway/dist/gateways/sseToStdio.js";
+import getAuthToken from "../auth";
+import { TemboClient } from "../client";
 
 const create = new Command();
 
-create.name("create");
-create.description("Create a new project");
-create.action(() => {
-  console.log("Creating a new project");
-});
+create
+  .name("create")
+  .description("Create a new task")
+  .option("--repository <repository>", "The repository to create the task in")
+  .argument("<taskDetails>", "The details of the task");
 
-create.argument("<name>", "The name of the project");
+create.action((taskDetails) => {
+  const client = TemboClient.fromEnv();
+  console.log(taskDetails);
+});
 
 export default create;

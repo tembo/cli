@@ -1,0 +1,6 @@
+{
+  "enabledMcpjsonServers": [
+    "tembo"
+  ],
+  "enableAllProjectMcpServers": true
+}

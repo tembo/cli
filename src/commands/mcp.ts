@@ -1,56 +1,29 @@
 import { Command } from "commander";
-import {
-  McpServer,
-  ResourceTemplate,
-} from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { z } from "zod";
+// @ts-ignore
+import { streamableHttpToStdio } from "supergateway/dist/gateways/streamableHttpToStdio.js";
+import getAuthToken from "../auth";
 
 const mcp = new Command();
 
 mcp.name("mcp");
-mcp.description("Run the MCP server");
+mcp
+  .description("Run the MCP server")
+  .option(
+    "--sse-url <url>",
+    "The URL of the MCP server",
+    process.env.TEMBO_SSE_URL || "https://api.tembo.io/mcp"
+  );
 
-mcp.action(async () => {
-  const server = new McpServer({
-    name: "demo-server",
-    version: "1.0.0",
+mcp.action(async (options) => {
+  const authToken = getAuthToken();
+
+  streamableHttpToStdio({
+    streamableHttpUrl: options.sseUrl,
+    logger: console,
+    headers: {
+      Authorization: `Bearer ${authToken}`,
+    },
   });
-
-  // Add an addition tool
-  server.registerTool(
-    "add",
-    {
-      title: "Addition Tool",
-      description: "Add two numbers",
-      inputSchema: { a: z.number(), b: z.number() },
-    },
-    async ({ a, b }) => ({
-      content: [{ type: "text", text: String(a + b) }],
-    })
-  );
-
-  // Add a dynamic greeting resource
-  server.registerResource(
-    "greeting",
-    new ResourceTemplate("greeting://{name}", { list: undefined }),
-    {
-      title: "Greeting Resource", // Display name for UI
-      description: "Dynamic greeting generator",
-    },
-    async (uri, { name }) => ({
-      contents: [
-        {
-          uri: uri.href,
-          text: `Hello, ${name}!`,
-        },
-      ],
-    })
-  );
-
-  // Start receiving messages on stdin and sending messages on stdout
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
 });
 
 export default mcp;
