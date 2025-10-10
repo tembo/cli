@@ -1,20 +1,38 @@
 import { Command } from "commander";
-// @ts-ignore
-import { sseToStdio } from "supergateway/dist/gateways/sseToStdio.js";
-import getAuthToken from "../auth";
 import { TemboClient } from "../client";
+import { config } from "../config";
 
 const create = new Command();
 
 create
   .name("create")
   .description("Create a new task")
-  .option("--repository <repository>", "The repository to create the task in")
-  .argument("<taskDetails>", "The details of the task");
+  .option("-r, --repositories <repositories...>", "Repository URLs to create the task for")
+  .option("-b, --branch <branch>", "Branch to target for this task")
+  .option("-a, --agent <agent>", "Agent to use for this task")
+  .option("--no-queue", "Don't queue the task immediately")
+  .argument("<prompt>", "The task prompt/description");
 
-create.action((taskDetails) => {
+create.action(async (prompt, options) => {
   const client = TemboClient.fromEnv();
-  console.log(taskDetails);
+
+  const response = await client.sdk.task.create({
+    prompt,
+    repositories: options.repositories,
+    branch: options.branch,
+    agent: options.agent,
+    queueRightAway: options.queue !== false,
+  });
+
+  if (config.get("json")) {
+    console.log(JSON.stringify(response, null, 2));
+  } else {
+    console.log("\nTask created successfully!");
+    console.log(`  ID: ${response.id}`);
+    console.log(`  Title: ${response.title}`);
+    console.log(`  Status: ${response.status}`);
+    console.log(`  Description: ${response.description}`);
+  }
 });
 
 export default create;

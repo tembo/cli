@@ -6,6 +6,11 @@ export const config = convict({
     format: Boolean,
     default: false,
   },
+  json: {
+    doc: "Whether to output in JSON format",
+    format: Boolean,
+    default: false,
+  },
   tembo: {
     apiUrl: {
       doc: "The URL of the Tembo API",

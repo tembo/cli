@@ -1,27 +1,9 @@
+import Tembo from "@tembo-io/sdk";
 import getAuthToken from "./auth";
 import { config } from "./config";
 
-// TODO - Load from OpenAPI spec
-interface CreateTaskRequest {
-  codeRepoIds: string[];
-  description: string;
-  prompt: string;
-  queueRightAway: boolean;
-}
-
 export class TemboClient {
-  getRepositories(): Promise<any[]> {
-    return this.fetch("/repository/list", {
-      method: "GET",
-    }).then((response) => {
-      return response.codeRepositories;
-    });
-  }
-
-  private readonly baseUrl: string =
-    process.env.TEMBO_API_URL || "https://api.tembo.io";
-
-  private readonly authToken: string;
+  private client: Tembo;
 
   static fromEnv() {
     return new TemboClient(getAuthToken());
@@ -32,32 +14,14 @@ export class TemboClient {
   }
 
   constructor(authToken: string) {
-    this.authToken = authToken;
+    this.client = new Tembo({
+      apiKey: authToken,
+      baseURL: process.env.TEMBO_API_URL || process.env.TEMBO_BASE_URL,
+      logLevel: config.get("debug") ? "debug" : "warn",
+    });
   }
 
-  async fetch(
-    path: string,
-    options: Omit<RequestInit, "body"> & { body?: any }
-  ) {
-    config.get("debug") && console.log(`Fetching ${this.baseUrl}${path}`);
-
-    const response = await fetch(`${this.baseUrl}${path}`, {
-      ...options,
-      body: options.body ? JSON.stringify(options.body) : undefined,
-      headers: {
-        ...options.headers,
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.authToken}`,
-      },
-    });
-
-    return response.json();
-  }
-
-  async createTask(createTaskRequest: CreateTaskRequest) {
-    const response = await this.fetch(`/task/create`, {
-      method: "POST",
-      body: createTaskRequest,
-    });
+  get sdk() {
+    return this.client;
   }
 }
