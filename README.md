@@ -1,5 +1,7 @@
 # Tembo CLI
 
+hi
+
 This is a CLI for accessing the Tembo API.
 
 ## MCP
