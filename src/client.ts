@@ -9,6 +9,15 @@ interface CreateTaskRequest {
   queueRightAway: boolean;
 }
 
+interface CreateSubtaskRequest {
+  title: string;
+  description: string;
+  prompt: string;
+  repositoryIds?: string[];
+  queueRightAway: boolean;
+  issueSourceId?: string;
+}
+
 export class TemboClient {
   getRepositories(): Promise<any[]> {
     return this.fetch("/repository/list", {
@@ -59,5 +68,21 @@ export class TemboClient {
       method: "POST",
       body: createTaskRequest,
     });
+    return response;
+  }
+
+  async createSubtask(createSubtaskRequest: CreateSubtaskRequest) {
+    const response = await this.fetch(`/task/create`, {
+      method: "POST",
+      body: {
+        title: createSubtaskRequest.title,
+        description: createSubtaskRequest.description,
+        prompt: createSubtaskRequest.prompt,
+        codeRepoIds: createSubtaskRequest.repositoryIds,
+        queueRightAway: createSubtaskRequest.queueRightAway,
+        issueSourceId: createSubtaskRequest.issueSourceId,
+      },
+    });
+    return response;
   }
 }
