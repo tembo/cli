@@ -20,16 +20,25 @@ mcp.action(async (options) => {
   const temboEnvVars = getTemboEnvVars();
 
   // Convert temboEnvVars to headers, X-Tembo-<key>: <value>
-  const headers = Object.entries(temboEnvVars).map(([key, value]) => ({
-    "X-Tembo-": `${key}: ${value}`,
-  }));
+  const temboHeaders: Record<string, string> = {};
+  for (const [key, value] of Object.entries(temboEnvVars)) {
+    if (value !== undefined) {
+      temboHeaders[`X-Tembo-${key}`] = value;
+    }
+  }
+
+  // Add workflow ID header if present (for automation context)
+  const workflowId = process.env.TEMBO_WORKFLOW_ID;
+  if (workflowId) {
+    temboHeaders["X-Tembo-Workflow-Id"] = workflowId;
+  }
 
   streamableHttpToStdio({
     streamableHttpUrl: options.sseUrl,
     logger: console,
     headers: {
       Authorization: `Bearer ${authToken}`,
-      ...headers,
+      ...temboHeaders,
     },
   });
 });
