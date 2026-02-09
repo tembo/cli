@@ -18,18 +18,4 @@ export const config = convict({
       default: "https://api.tembo.io",
     },
   },
-  posthog: {
-    apiKey: {
-      doc: "PostHog API key for feature flags",
-      format: String,
-      default: process.env.POSTHOG_API_KEY || "",
-      env: "POSTHOG_API_KEY",
-    },
-    host: {
-      doc: "PostHog host URL",
-      format: String,
-      default: process.env.POSTHOG_HOST || "https://app.posthog.com",
-      env: "POSTHOG_HOST",
-    },
-  },
 });
